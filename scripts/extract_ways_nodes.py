@@ -3,6 +3,7 @@ import collections
 from pprint import pprint
 data = {}
 
+#load the json
 with open("sf_json_all.json") as data_file:
     data = json.load(data_file)
 
@@ -13,6 +14,7 @@ e_data_file = open('sf_edges_data.txt', 'w')
 ways = []
 nodes_link = collections.Counter()
 
+#count the links of each node, since we need it to split ways later
 for e in data["elements"]:
     if e["type"] == "way" and 'tags' in e and "highway" in e["tags"]: #it is a road
         if all (k != e["tags"]["highway"] for k in ("pedestrian","footway", "cycleway", "bridleway")): #if its not a walk or bike way
@@ -37,7 +39,9 @@ for e in ways:
         if i != 0 and i != len(e['nodes']) - 1:
             n = e['nodes'][i]
             if nodes_link[n] > 1:
+
                 end = n
+
                 output = []
                 output.append(str(start))
                 output.append(str(end))
