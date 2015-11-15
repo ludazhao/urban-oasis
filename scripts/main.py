@@ -23,12 +23,57 @@ for line in n_file:
 	nodes[int(data[0])] = (float(data[1]), float(data[2]))
 
 G = snap.LoadEdgeList(snap.PUNGraph, 'n_sf_edges.txt', 0, 1)
-print G.GetNodes()
-print G.GetEdges()
 
 G_dual = snap.LoadEdgeList(snap.PUNGraph, 'n_sf_edges_dual.txt', 0, 1)
-print G_dual.GetNodes()
-print G_dual.GetEdges()
+
+Node_betweenness = snap.TIntFltH()
+Edge_betweenness = snap.TIntPrFltH()
+snap.GetBetweennessCentr(G, Node_betweenness, Edge_betweenness)
+Node_betweenness.Sort(False, True)
+rank = 1
+for item in Node_betweenness:
+	if rank > 20:
+		break
+	print "%d : %f" % (item, Node_betweenness[item])
+	rank += 1
+print "-----------------"
+
+Node_betweenness_dual = snap.TIntFltH()
+Edge_betweenness_dual = snap.TIntPrFltH()
+snap.GetBetweennessCentr(G_dual, Node_betweenness_dual, Edge_betweenness_dual)
+Node_betweenness_dual.Sort(False, True)
+rank = 1
+for item in Node_betweenness_dual:
+	if rank > 20:
+		break
+	print "%d : %f" % (item, Node_betweenness_dual[item])
+	rank += 1
+print "-----------------"
+
+closeness = snap.TIntFltH()
+for n in G.Nodes():
+	nId = n.GetId()
+	closeness[nId] = snap.GetClosenessCentr(G, nId)
+closeness.Sort(False, False)
+rank = 1
+for item in closeness:
+	if rank > 20:
+		break
+	print "%d : %f" % (item, closeness[item])
+	rank += 1
+print "-----------------"
+
+closeness_dual = snap.TIntFltH()
+for n in G_dual.Nodes():
+	nId = n.GetId()
+	closeness_dual[nId] = snap.GetClosenessCentr(G_dual, nId)
+closeness_dual.Sort(False, False)
+rank = 1
+for item in closeness_dual:
+	if rank > 20:
+		break
+	print "%d : %f" % (item, closeness_dual[item])
+	rank += 1
 
 # testing code
 # for n in G.Nodes():
