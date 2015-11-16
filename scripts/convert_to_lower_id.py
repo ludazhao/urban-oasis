@@ -30,12 +30,10 @@ missing_nodes = []
 for l in e_file:
     node_id = l.split()[0]
     if node_id not in n_hash:
-        count+=1
         missing_nodes.append(node_id)
 
     node_id = l.split()[1]
     if node_id not in n_hash:
-        count+=1
         missing_nodes.append(node_id)
 
 print "extra node count(from edge list):", count
@@ -49,12 +47,11 @@ for l in n_dual_file:
         n_dual_file_w.write(l.replace(edge_id, str(count)))
         count+=1
 
-
 for l in e_file:
     arr = l.split()
     if arr[0] in missing_nodes or arr[1] in missing_nodes:
         continue
-    e_file_w.write(' '.join([n_hash[arr[0]], n_hash[arr[1]], e_hash[arr[2]]]) + '\n')
+    e_file_w.write(' '.join([n_hash[arr[0]], n_hash[arr[1]], e_hash[arr[2]], arr[3]]) + '\n')
 
 for l in e_dual_file:
     arr = l.split()

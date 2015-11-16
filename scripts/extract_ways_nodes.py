@@ -48,6 +48,7 @@ for e in ways:
                 nodes_list.add(start)
                 nodes_list.add(end)
                 output.append(str(e['id']))
+                output.append(str(e['tags']['highway']))
                 e_file.write('\t'.join(output) + '\n')
                 start = end
 
@@ -58,6 +59,7 @@ for e in ways:
     nodes_list.add(start)
     nodes_list.add(end)
     output.append(str(e['id']))
+    output.append(str(e['tags']['highway']))
     e_file.write('\t'.join(output) + '\n')
     e_data_file.write(str(e['id']) + ":" + json.dumps(e['tags']) + '\n')
 
