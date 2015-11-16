@@ -10,9 +10,12 @@ edge_data = {}
 # maps from the node idea to its coordinates
 nodes = {}
 
+primary_roads = []
 for line in e_file:
 	ids = line.rstrip().split()
 	edge_ids[(int(ids[0]), int(ids[1]))] = int(ids[2])
+	if ids[3] in ["primary", "secondary", "tertiary"]:
+		primary_roads.append(int(ids[2]))
 
 for line in e_data_file:
 	data = line.rstrip().split(':{')
@@ -26,40 +29,20 @@ G = snap.LoadEdgeList(snap.PUNGraph, 'n_sf_edges.txt', 0, 1)
 
 G_dual = snap.LoadEdgeList(snap.PUNGraph, 'n_sf_edges_dual.txt', 0, 1)
 
-Node_betweenness = snap.TIntFltH()
-Edge_betweenness = snap.TIntPrFltH()
-snap.GetBetweennessCentr(G, Node_betweenness, Edge_betweenness)
-Node_betweenness.Sort(False, True)
-rank = 1
-for item in Node_betweenness:
-	if rank > 20:
-		break
-	print "%d : %f" % (item, Node_betweenness[item])
-	rank += 1
-print "-----------------"
-
+candidates = []
+low_betweenness = []
 Node_betweenness_dual = snap.TIntFltH()
 Edge_betweenness_dual = snap.TIntPrFltH()
 snap.GetBetweennessCentr(G_dual, Node_betweenness_dual, Edge_betweenness_dual)
 Node_betweenness_dual.Sort(False, True)
 rank = 1
 for item in Node_betweenness_dual:
-	if rank > 20:
+	if item not in primary_roads:
+		continue
+	if rank > 1000:
 		break
-	print "%d : %f" % (item, Node_betweenness_dual[item])
-	rank += 1
-print "-----------------"
-
-closeness = snap.TIntFltH()
-for n in G.Nodes():
-	nId = n.GetId()
-	closeness[nId] = snap.GetClosenessCentr(G, nId)
-closeness.Sort(False, False)
-rank = 1
-for item in closeness:
-	if rank > 20:
-		break
-	print "%d : %f" % (item, closeness[item])
+	# print "%d : %f" % (item, Node_betweenness_dual[item])
+	low_betweenness.append(item)
 	rank += 1
 print "-----------------"
 
@@ -70,10 +53,17 @@ for n in G_dual.Nodes():
 closeness_dual.Sort(False, False)
 rank = 1
 for item in closeness_dual:
-	if rank > 20:
+	if item not in primary_roads:
+		continue
+	if rank > 100:
 		break
-	print "%d : %f" % (item, closeness_dual[item])
+	# print "%d : %f" % (item, closeness_dual[item])
+	if item in low_betweenness:
+		candidates.append(item)
 	rank += 1
+print "-----------------"
+print "number of candidates: %d" % len(candidates)
+print candidates
 
 # testing code
 # for n in G.Nodes():
