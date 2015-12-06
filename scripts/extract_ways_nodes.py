@@ -26,6 +26,7 @@ print "number of streets:", len(ways)
 
 nodes_list = set()
 #loop over it a second time to find intersections
+count = 0
 for e in ways:
     if len(e['nodes']) == 0:
         print e
@@ -33,6 +34,10 @@ for e in ways:
         exit()
     start = e['nodes'][0]
     end = e['nodes'][-1]
+    if (start == end):
+        print "THis freaking way only have 1 node"
+        count+=1
+        continue
 
     # if there are intersections, break the road into multiple edges
     for i in range(len(e['nodes'])):
@@ -49,10 +54,19 @@ for e in ways:
                 nodes_list.add(end)
                 output.append(str(e['id']))
                 output.append(str(e['tags']['highway']))
+                if ('maxspeed' in e['tags']):
+                    #print e['tags']['maxspeed']
+                    output.append(e['tags']['maxspeed'])
+                else:
+                    output.append('N/A')
                 e_file.write('\t'.join(output) + '\n')
                 start = end
 
-
+    end = e['nodes'][-1]
+    if (start == end):
+        print "THis sucks"
+        count+=1
+        continue
     output = []
     output.append(str(start))
     output.append(str(end))
@@ -60,8 +74,15 @@ for e in ways:
     nodes_list.add(end)
     output.append(str(e['id']))
     output.append(str(e['tags']['highway']))
+    if ('maxspeed' in e['tags']):
+        #print e['tags']['maxspeed']
+        output.append(e['tags']['maxspeed'])
+    else:
+        output.append('N/A')
     e_file.write('\t'.join(output) + '\n')
     e_data_file.write(str(e['id']) + ":" + json.dumps(e['tags']) + '\n')
+
+print count
 
 for e in data["elements"]:
     if e["type"] == "node" and e["id"] in nodes_list:

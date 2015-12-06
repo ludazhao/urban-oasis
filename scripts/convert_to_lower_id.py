@@ -51,7 +51,7 @@ for l in e_file:
     arr = l.split()
     if arr[0] in missing_nodes or arr[1] in missing_nodes:
         continue
-    e_file_w.write(' '.join([n_hash[arr[0]], n_hash[arr[1]], e_hash[arr[2]], arr[3]]) + '\n')
+    e_file_w.write(' '.join([n_hash[arr[0]], n_hash[arr[1]], e_hash[arr[2]], arr[3], arr[4]]) + '\n')
 
 for l in e_dual_file:
     arr = l.split()
