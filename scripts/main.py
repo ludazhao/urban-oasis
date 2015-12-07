@@ -25,6 +25,10 @@ for line in n_file:
 	data = line.rstrip().split()
 	nodes[int(data[0])] = (float(data[1]), float(data[2]))
 
+# edge_attr = {}
+# for nPair in edge_ids:
+# 	edge_attr[nPair] = edge_data[edge_ids[nPair]]
+
 G = snap.LoadEdgeList(snap.PUNGraph, 'n_sf_edges.txt', 0, 1)
 
 G_dual = snap.LoadEdgeList(snap.PUNGraph, 'n_sf_edges_dual.txt', 0, 1)

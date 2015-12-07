@@ -8,6 +8,7 @@ n_file = open("../n_sf_nodes.txt", 'r')
 # ex. (33242031 65292114) -> "25"(or "N/A")
 edge_typo = {}
 edge_speed = {}
+edge_lanes = {}
 nd_to_e = {}
 # maps from the node idea to its coordinates
 nodes = {}
@@ -17,7 +18,7 @@ for line in e_file:
     ids = line.rstrip().split()
     if ids[0] == ids[1]:
         continue
-    if (int(ids[0]), int(ids[1])) == (14282, 10113):
+    if (int(ids[0]), int(ids[1])) == (14280, 10113):
         continue
     e1 = int(ids[0])
     e2 = int(ids[1])
@@ -27,19 +28,30 @@ for line in e_file:
         graph[e2] = []
 
     graph[e1].append(e2)
-    graph[e2].append(e1)
+    if ids[6] == "no":
+        graph[e2].append(e1)
+        edge_typo[(int(ids[1]), int(ids[0]))] = ids[3]
+        edge_speed[(int(ids[1]), int(ids[0]))] = ids[4]
+        edge_lanes[(int(ids[1]), int(ids[0]))] = ids[5]
+        nd_to_e[(int(ids[1]), int(ids[0]))] = ids[2]
 
     edge_typo[(int(ids[0]), int(ids[1]))] = ids[3]
-    edge_typo[(int(ids[1]), int(ids[0]))] = ids[3]
     edge_speed[(int(ids[0]), int(ids[1]))] = ids[4]
-    edge_speed[(int(ids[1]), int(ids[0]))] = ids[4]
+    edge_lanes[(int(ids[0]), int(ids[1]))] = ids[5]
     nd_to_e[(int(ids[0]), int(ids[1]))] = ids[2]
-    nd_to_e[(int(ids[1]), int(ids[0]))] = ids[2]
 
 for line in n_file:
     data = line.rstrip().split()
     nodes[int(data[0])] = (float(data[1]), float(data[2]))
 
 G = snap.LoadEdgeList(snap.PUNGraph, '../n_sf_edges.txt', 0, 1)
-model = TrafficModel(G,graph, nodes, edge_typo, edge_speed, nd_to_e)
-model.iterate(10, 10)
+model = TrafficModel(G,graph, nodes, edge_typo, edge_speed, edge_lanes, nd_to_e)
+model.iterate(10, 1000)
+
+#candidates = [7861, 9458, 7700, 8779, 3716, 345, 3717, 3263, 4469, 4470, 7696, 4657]
+#for e in nd_to_e:
+#    if nd_to_e[e] in candidates:
+#        graph[e[0]].remove(e[1])
+
+# model = TrafficModel(G, graph, nodes, edge_typo, edge_speed, edge_lanes, nd_to_e)
+# model.iterate(10, 1000)
