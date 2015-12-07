@@ -146,16 +146,16 @@ class TrafficModel:
                     not_feasible.add(pair)
                     continue
                 for k in range(len(path) - 1):
-                    self.e_flow[(path[k], path[k+1])]+=1
                     # self.e_flow[(path[k+1], path[k])]+=1
 
-                    for e in [(path[k], path[k+1])]:
-                        self.e_time[e] = self.e_dist[e] * 60 / float(self.e_speed[e]) # in minutes
-                        if self.e_type[e] != "motorway" and self.e_type[e] != "trunk":
-                            self.e_time[e] += 18.1/60 #MAGIC PART 2
-                        self.e_time[e] *= (1 + 0.2 * pow(self.e_flow[e]*50 / (self.capacity[e] * 1400.0/60 * self.e_dist[e] * 5280), 3)) #MAGIC
-                        #print self.e_flow[e] * 500 / (self.capacity[e] * 1400.0/60 * self.e_dist[e] * 5280)
-                        #print 1+ 0.2 * pow(self.e_flow[e] * 500 / (self.capacity[e] * 1400.0/60 * self.e_dist[e] * 5280), 2)
+                    e = (path[k], path[k+1])
+                    self.e_time[e] = self.e_dist[e] * 60 / float(self.e_speed[e]) # in minutes
+                    if self.e_type[e] != "motorway" and self.e_type[e] != "trunk":
+                        self.e_time[e] += 18.1/60 #MAGIC PART 2
+                    self.e_time[e] *= (1 + 0.2 * pow(self.e_flow[e]*10 / (self.capacity[e] * 1400.0/60), 3) / (self.e_dist[e] * 5280)) #MAGIC
+                    #print self.e_flow[e] * 500 / (self.capacity[e] * 1400.0/60 * self.e_dist[e] * 5280)
+                    #print 0.2 * pow(self.e_flow[e] * 50 / (self.capacity[e] * 1400.0/60 * self.e_dist[e] * 5280), 2)
+                    self.e_flow[(path[k], path[k+1])]+=1
 
             #for e in self.e_type:
             #    self.e_time[e] = self.e_dist[e] * 60 / float(self.e_speed[e]) # in minutes
@@ -190,7 +190,7 @@ class TrafficModel:
                 if percent_change < 0.05:
                     break
 
-            f2 = open("final_path_base_map" + str(i) + ".txt", 'w')
+            f2 = open("base_results/final_path_base_map" + str(i) + ".txt", 'w')
             avg_dist = []
             avg_time = []
             for p in test_pairs:
@@ -223,7 +223,7 @@ class TrafficModel:
         print "Avg Time STD: ", avg_time_std_arr
         print "Max Time: ", max_time_arr
         print "Min Time: ", min_time_arr
-        f = open("edge_with_traffic_model.txt", 'w')
+        f = open("base_results/edge_with_traffic_model.txt", 'w')
         for e in self.e_time:
             f.write( str(e[0]) +' '+ str(e[1]) + ' ' + str(self.e_time[e]) + '\n')
 
