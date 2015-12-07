@@ -4,6 +4,7 @@ import copy
 import math
 from geopy.distance import vincenty
 import random
+import numpy
 
 #Elena did this
 #def getDistance(coor1, coor2):
@@ -95,6 +96,7 @@ class TrafficModel:
                     if node not in used:
                         new_list = list(path[1])
                         new_list.append(node)
+                        #new_path = [path[0]+self.e_time[(start, node)]  + vincenty(start, node).miles/50 , new_list]
                         new_path = [path[0]+self.e_time[(start, node)], new_list]
                         q.put(tuple(new_path))
             if (q.empty()):
@@ -116,13 +118,23 @@ class TrafficModel:
 
         not_feasible = set()
         old_test_pairs = {}
+        change_arr = []
+        avg_dist_arr = []
+        avg_dist_std_arr = []
+        max_dist_arr = []
+        min_dist_arr = []
+        avg_time_arr = []
+        avg_time_std_arr = []
+        max_time_arr = []
+        min_time_arr = []
         for i in range(numIter):
             print "Iteration ", i
             old_test_pairs = dict(test_pairs)
             #reset flow
             self.e_flow = {}
             for e in self.e_type:
-                self.e_flow[(int(e[0]), int(e[1]))] = 0
+                self.e_flow[e] = 0
+
             #go through the number of iterations
             for j, pair in enumerate(test_pairs):
                 if pair in not_feasible:
@@ -146,8 +158,6 @@ class TrafficModel:
                         #print self.e_flow[e] * 500 / (self.capacity[e] * 1400.0/60 * self.e_dist[e] * 5280)
                         #print 1+ 0.2 * pow(self.e_flow[e] * 500 / (self.capacity[e] * 1400.0/60 * self.e_dist[e] * 5280), 2)
 
-
-
             #for e in self.e_type:
             #    self.e_time[e] = self.e_dist[e] * 60 / float(self.e_speed[e]) # in minutes
             #    if self.e_type[e] != "motorway" and self.e_type[e] != "trunk":
@@ -161,7 +171,6 @@ class TrafficModel:
             print max(self.e_flow.values())
             print max(self.e_time, key=self.e_time.get)
             print max(self.e_time.values())
-            change_arr = []
 
             change = 0
             if i != 0:
@@ -181,18 +190,42 @@ class TrafficModel:
                 change_arr.append(percent_change)
                 if percent_change < 0.05:
                     break
-                f2 = open("final_path_base_map" + str(i) + ".txt", 'w')
-                for p in test_pairs:
-                    if p not in not_feasible:
-                        for n in test_pairs[p][1]:
-                            f2.write("%s " % str(n))
-                        f2.write('\n')
-        print change_arr
+
+            f2 = open("final_path_base_map" + str(i) + ".txt", 'w')
+            avg_dist = []
+            avg_time = []
+            for p in test_pairs:
+                if p not in not_feasible:
+                    avg_time.append(test_pairs[p][0])
+                    path_len = 0
+                    for lol in range(len(test_pairs[p][1]) - 1):
+                        path_len+=self.e_dist[(test_pairs[p][1][lol],test_pairs[p][1][lol + 1])]
+                    avg_dist.append(path_len)
+                    for n in test_pairs[p][1]:
+                        f2.write("%s " % str(n))
+                    f2.write('\n')
+            avg_dist_arr.append(sum(avg_dist)/float(numTest - len(not_feasible)))
+            avg_dist_std_arr.append(numpy.std(avg_dist))
+            max_dist_arr.append(max(avg_dist))
+            min_dist_arr.append(min(avg_dist))
+            avg_time_arr.append(sum(avg_time)/float(numTest - len(not_feasible)))
+            avg_time_std_arr.append(numpy.std(avg_time))
+            max_time_arr.append(max(avg_time))
+            min_time_arr.append(min(avg_time))
+
+        # END OF ITERATION #
+
+        print "Percentage Change per it: ", change_arr
+        print "Avg Distance per it: ", avg_dist_arr
+        print "Avg Dist STD: ", avg_dist_std_arr
+        print "Max Dist: ", max_dist_arr
+        print "Min Dist: ", min_dist_arr
+        print "Avg Time per it: ", avg_time_arr
+        print "Avg Time STD: ", avg_time_std_arr
+        print "Max Time: ", max_time_arr
+        print "Min Time: ", min_time_arr
         f = open("edge_with_traffic_model.txt", 'w')
         for e in self.e_time:
             f.write( str(e[0]) +' '+ str(e[1]) + ' ' + str(self.e_time[e]) + '\n')
-            #Profit
-
-            #Profit
 
 

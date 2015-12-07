@@ -42,4 +42,4 @@ for line in n_file:
 
 G = snap.LoadEdgeList(snap.PUNGraph, '../n_sf_edges.txt', 0, 1)
 model = TrafficModel(G,graph, nodes, edge_typo, edge_speed, nd_to_e)
-model.iterate(10, 1000)
+model.iterate(10, 10)
