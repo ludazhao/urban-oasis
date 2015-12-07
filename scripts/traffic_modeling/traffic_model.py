@@ -15,13 +15,14 @@ class TrafficModel:
 
     # graph: snappy graph, node_attr: a dict of n1 to node coordinates(lat, long), edge_typo, edge_speed: a dict of (n1, n2) to edge properties, n_to_e: a link from (n1, n2) to a list of edge ids(to preserve which edges are part of the same road)
     # the only changing variables to calculate our trafficmodel is self.e_flow and self.e_time. All other variables are constant
-    def __init__(self, graph, better_graph, node_attr, edge_typo, edge_speed, n_to_e):
+    def __init__(self, graph, better_graph, node_attr, edge_typo, edge_speed, edge_lanes, n_to_e):
         self.graph2 = graph
         self.g = better_graph
         self.node_coor = node_attr #the coordinate of each node
         self.e_type = edge_typo #the typology of each edge
         self.e_dist = {} #the distance for each edge
         self.e_speed = edge_speed # the maximum allowed speed of each edge.
+        self.e_lanes = edge_lanes # the number of lanes of each road
         self.num_nodes = graph.GetNodes()
         self.capacity = {}
         print self.num_nodes
@@ -32,23 +33,21 @@ class TrafficModel:
             e_type = self.e_type[e]
             if self.e_speed[e] == 'N/A':
                 if e_type == 'residential':
-                    self.capacity[e] = 1
                     self.e_speed[e] = 20
                 elif e_type == 'tertiary':
-                    self.capacity[e] = 2
                     self.e_speed[e] = 25
                 elif e_type == 'secondary':
-                    self.capacity[e] = 2
                     self.e_speed[e] = 25
                 elif e_type == 'primary':
-                    self.capacity[e] = 3
                     self.e_speed[e] = 35
                 elif e_type == 'motorway' or e_type == 'trunk':
-                    self.capacity[e] = 4
                     self.e_speed[e] = 55
                 else:
-                    self.capacity[e] = 1
                     self.e_speed[e] = 25
+            else:
+                self.e_speed[e] = int(self.e_speed[e].replace("mph", ""))
+            if self.e_lanes[e] != 'N/A' and self.e_lanes[e] != "0":
+                self.capacity[e] = int(self.e_lanes[e])
             else:
                 if e_type == 'residential':
                     self.capacity[e] = 1
@@ -62,7 +61,7 @@ class TrafficModel:
                     self.capacity[e] = 4
                 else:
                     self.capacity[e] = 1
-                self.e_speed[e] = int(self.e_speed[e].replace("mph", ""))
+
 
         #calculate distance for each edge(loop over e_type since it contains all edges)
         for e in self.e_type:
@@ -136,9 +135,9 @@ class TrafficModel:
                     continue
                 for k in range(len(path) - 1):
                     self.e_flow[(path[k], path[k+1])]+=1
-                    self.e_flow[(path[k+1], path[k])]+=1
+                    # self.e_flow[(path[k+1], path[k])]+=1
 
-                    for e in [(path[k], path[k+1]), (path[k+1], path[k])]:
+                    for e in [(path[k], path[k+1])]:
                         self.e_time[e] = self.e_dist[e] * 60 / float(self.e_speed[e]) # in minutes
                         if self.e_type[e] != "motorway" and self.e_type[e] != "trunk":
                             self.e_time[e] += 18.1/60 #MAGIC PART 2

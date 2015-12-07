@@ -35,7 +35,7 @@ for e in ways:
     start = e['nodes'][0]
     end = e['nodes'][-1]
     if (start == end):
-        print "THis freaking way only have 1 node"
+        # print "THis freaking way only have 1 node"
         count+=1
         continue
 
@@ -56,15 +56,23 @@ for e in ways:
                 output.append(str(e['tags']['highway']))
                 if ('maxspeed' in e['tags']):
                     #print e['tags']['maxspeed']
-                    output.append(e['tags']['maxspeed'])
+                    output.append(e['tags']['maxspeed'].split()[0])
                 else:
                     output.append('N/A')
+                if 'lanes' in e['tags']:
+                    output.append(e['tags']['lanes'])
+                else:
+                    output.append("N/A")
+                if 'oneway' in e['tags']:
+                    output.append(e['tags']['oneway'])
+                else:
+                    output.append("no")
                 e_file.write('\t'.join(output) + '\n')
                 start = end
 
     end = e['nodes'][-1]
     if (start == end):
-        print "THis sucks"
+        # print "This sucks"
         count+=1
         continue
     output = []
@@ -76,9 +84,17 @@ for e in ways:
     output.append(str(e['tags']['highway']))
     if ('maxspeed' in e['tags']):
         #print e['tags']['maxspeed']
-        output.append(e['tags']['maxspeed'])
+        output.append(e['tags']['maxspeed'].split()[0])
     else:
         output.append('N/A')
+    if 'lanes' in e['tags']:
+        output.append(e['tags']['lanes'])
+    else:
+        output.append("N/A")
+    if 'oneway' in e['tags']:
+        output.append(e['tags']['oneway'])
+    else:
+        output.append("no")
     e_file.write('\t'.join(output) + '\n')
     e_data_file.write(str(e['id']) + ":" + json.dumps(e['tags']) + '\n')
 
