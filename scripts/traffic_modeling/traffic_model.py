@@ -183,9 +183,10 @@ class TrafficModel:
                     break
                 f2 = open("final_path_base_map" + str(i) + ".txt", 'w')
                 for p in test_pairs:
-                    for n in test_pairs[p][1]:
-                        f2.write("%s " % str(n))
-                    f2.write('\n')
+                    if p not in not_feasible:
+                        for n in test_pairs[p][1]:
+                            f2.write("%s " % str(n))
+                        f2.write('\n')
         print change_arr
         f = open("edge_with_traffic_model.txt", 'w')
         for e in self.e_time:
