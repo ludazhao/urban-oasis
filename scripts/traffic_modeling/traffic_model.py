@@ -16,7 +16,7 @@ class TrafficModel:
 
     # graph: snappy graph, node_attr: a dict of n1 to node coordinates(lat, long), edge_typo, edge_speed: a dict of (n1, n2) to edge properties, n_to_e: a link from (n1, n2) to a list of edge ids(to preserve which edges are part of the same road)
     # the only changing variables to calculate our trafficmodel is self.e_flow and self.e_time. All other variables are constant
-    def __init__(self, graph, better_graph, node_attr, edge_typo, edge_speed, edge_lanes, n_to_e):
+    def __init__(self, graph, better_graph, node_attr, edge_typo, edge_speed, edge_lanes, n_to_e, init_pairs=[]):
         self.graph2 = graph
         self.g = better_graph
         self.node_coor = node_attr #the coordinate of each node
@@ -26,6 +26,7 @@ class TrafficModel:
         self.e_lanes = edge_lanes # the number of lanes of each road
         self.num_nodes = graph.GetNodes()
         self.capacity = {}
+        self.init_pairs = init_pairs
         print self.num_nodes
 
         #get maximum speed for all edge
@@ -106,15 +107,18 @@ class TrafficModel:
         return path[0], path[1]
 
     def iterate(self, numIter, numTest):
-
         test_pairs = {}
-        #Generate the random pairs of start-end locations
-        for i in range(numTest):
-            pair = (random.randint(0, self.num_nodes), random.randint(0, self.num_nodes))
-            if pair[0] not in self.g:
-                continue
-            test_pairs[pair] = ()
-
+        if self.init_pairs == []:
+            #Generate the random pairs of start-end locations
+            for i in range(numTest):
+                pair = (random.randint(0, self.num_nodes), random.randint(0, self.num_nodes))
+                if pair[0] not in self.g:
+                    i-=1
+                    continue
+                test_pairs[pair] = ()
+        else:
+            for p in self.init_pairs:
+                test_pairs[p] = ()
         not_feasible = set()
         old_test_pairs = {}
         change_arr = []
@@ -190,7 +194,7 @@ class TrafficModel:
                 if percent_change < 0.05:
                     break
 
-            f2 = open("base_results/final_path_base_map" + str(i) + ".txt", 'w')
+            f2 = open("candidate_results/final_path_base_map" + str(i) + ".txt", 'w')
             avg_dist = []
             avg_time = []
             for p in test_pairs:
@@ -223,7 +227,7 @@ class TrafficModel:
         print "Avg Time STD: ", avg_time_std_arr
         print "Max Time: ", max_time_arr
         print "Min Time: ", min_time_arr
-        f = open("base_results/edge_with_traffic_model.txt", 'w')
+        f = open("candidate_results/edge_with_traffic_model.txt", 'w')
         for e in self.e_time:
             f.write( str(e[0]) +' '+ str(e[1]) + ' ' + str(self.e_time[e]) + '\n')
 
