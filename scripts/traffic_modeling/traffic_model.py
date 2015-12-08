@@ -112,9 +112,11 @@ class TrafficModel:
             #Generate the random pairs of start-end locations
             for i in range(numTest):
                 pair = (random.randint(0, self.num_nodes), random.randint(0, self.num_nodes))
-                if pair[0] not in self.g:
-                    i-=1
-                    continue
+                while pair[0] not in self.g:
+                    # i-=1
+                    # continue
+                    pair = (random.randint(0, self.num_nodes), random.randint(0, self.num_nodes))
+                # print "(%d, %d)," % (pair[0], pair[1])
                 test_pairs[pair] = ()
         else:
             for p in self.init_pairs:
